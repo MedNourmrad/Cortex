@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORTEX — Logiciels Qt/C++</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080A08;--bg2:#0D110D;--bg3:#121812;--card:#0F130F;
+  --border:rgba(126,217,87,0.1);--border2:rgba(126,217,87,0.2);
+  --accent:#7ED957;--accent2:#5BAD3A;--accent3:#3D7A25;
+  --text:#EFF5EB;--muted:#7A8C72;--muted2:#3E4E36;
+  --dark:#1A1A1A;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.2rem 3rem;
+  background:rgba(8,10,8,0.9);backdrop-filter:blur(12px);
+  border-bottom:0.5px solid var(--border);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:0.7rem;
+  font-size:1.2rem;font-weight:800;letter-spacing:0.1em;color:var(--text);
+  text-transform:uppercase;
+}
+.nav-logo-icon{
+  width:28px;height:28px;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;font-weight:800;color:var(--dark);
+  clip-path:polygon(10% 0%,100% 0%,90% 100%,0% 100%);
+}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:var(--muted);font-size:0.8rem;text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.2s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{
+  background:var(--accent);color:var(--dark);border:none;
+  padding:0.55rem 1.4rem;font-family:'Syne',sans-serif;
+  font-size:0.8rem;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;
+}
+.nav-cta:hover{opacity:0.85}
+
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 3rem 5rem;position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(126,217,87,0.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(126,217,87,0.05) 1px,transparent 1px);
+  background-size:55px 55px;
+}
+.hero-vignette{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 15% 80%,rgba(126,217,87,0.08) 0%,transparent 55%),
+             linear-gradient(to top,var(--bg) 0%,transparent 55%);
+}
+.circuit-bg{
+  position:absolute;right:-50px;top:50%;transform:translateY(-50%);
+  opacity:0.04;font-size:22rem;font-weight:800;color:var(--accent);
+  pointer-events:none;letter-spacing:-0.05em;
+}
+.hero-label{
+  font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--accent);
+  letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1.5rem;
+  position:relative;display:flex;align-items:center;gap:0.8rem;
+  animation:fadeUp 0.6s 0.1s both;
+}
+.hero-label::before{content:'';display:block;width:32px;height:1px;background:var(--accent)}
+.hero-title{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(3.5rem,8vw,7rem);line-height:0.93;
+  color:var(--text);position:relative;margin-bottom:2rem;
+  animation:fadeUp 0.6s 0.25s both;
+}
+.hero-title .accent{color:var(--accent);font-style:italic}
+.hero-subtitle{
+  font-size:1rem;color:var(--muted);max-width:500px;
+  line-height:1.7;position:relative;margin-bottom:3rem;
+  animation:fadeUp 0.6s 0.4s both;
+}
+.hero-actions{display:flex;gap:1rem;position:relative;animation:fadeUp 0.6s 0.55s both}
+.btn-primary{
+  background:var(--accent);color:var(--dark);border:none;
+  padding:0.9rem 2.2rem;font-family:'Syne',sans-serif;
+  font-size:0.85rem;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;
+}
+.btn-primary:hover{opacity:0.85}
+.btn-ghost{
+  background:transparent;color:var(--text);border:0.5px solid var(--border2);
+  padding:0.9rem 2.2rem;font-family:'Syne',sans-serif;
+  font-size:0.85rem;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;cursor:pointer;transition:all 0.2s;
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.hero-scroll{
+  position:absolute;right:3rem;bottom:5rem;
+  writing-mode:vertical-rl;font-family:'DM Mono',monospace;
+  font-size:0.62rem;color:var(--muted2);letter-spacing:0.15em;
+  text-transform:uppercase;display:flex;align-items:center;gap:1rem;
+}
+.hero-scroll::after{content:'';display:block;width:1px;height:60px;background:var(--muted2)}
+
+.marquee-wrap{
+  overflow:hidden;border-top:0.5px solid var(--border);
+  border-bottom:0.5px solid var(--border);background:var(--bg2);padding:0.9rem 0;
+}
+.marquee-track{display:flex;gap:3rem;animation:marquee 20s linear infinite;white-space:nowrap}
+.marquee-item{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted2);letter-spacing:0.12em;text-transform:uppercase}
+.marquee-dot{color:var(--accent);margin-right:3rem}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.stats-bar{
+  border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);
+  display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg2);
+}
+.stat-item{padding:2.5rem 2rem;border-right:0.5px solid var(--border)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Instrument Serif',serif;font-size:3rem;color:var(--accent);line-height:1;margin-bottom:0.5rem}
+.stat-label{font-size:0.78rem;color:var(--muted);letter-spacing:0.05em}
+
+section{padding:6rem 3rem}
+.section-label{
+  font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);
+  letter-spacing:0.15em;text-transform:uppercase;margin-bottom:3rem;
+  display:flex;align-items:center;gap:0.8rem;
+}
+.section-label::before{content:'';display:block;width:24px;height:1px;background:var(--accent)}
+.section-title{font-family:'Instrument Serif',serif;font-size:clamp(2rem,4vw,3.2rem);line-height:1.1;margin-bottom:1.5rem}
+.section-title .italic{font-style:italic;color:var(--accent)}
+
+.projects-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:0.5px solid var(--border)}
+.project-card{
+  padding:2.5rem;border-right:0.5px solid var(--border);
+  border-bottom:0.5px solid var(--border);position:relative;
+  overflow:hidden;transition:background 0.3s;cursor:pointer;
+}
+.project-card:nth-child(2n){border-right:none}
+.project-card:hover{background:var(--bg3)}
+.project-card.featured{grid-column:1/-1;border-right:none;background:var(--bg2)}
+.project-tag{
+  font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:1rem;
+}
+.project-title{font-family:'Instrument Serif',serif;font-size:1.8rem;margin-bottom:0.8rem;line-height:1.1}
+.project-card.featured .project-title{font-size:2.4rem}
+.project-desc{font-size:0.88rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem}
+.project-tech{display:flex;gap:0.5rem;flex-wrap:wrap}
+.tech-pill{
+  font-family:'DM Mono',monospace;font-size:0.63rem;
+  padding:0.3rem 0.7rem;border:0.5px solid var(--border2);
+  color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;
+}
+.project-arrow{
+  position:absolute;top:2.5rem;right:2.5rem;font-size:1.4rem;
+  color:var(--muted2);transition:color 0.2s,transform 0.2s;
+}
+.project-card:hover .project-arrow{color:var(--accent);transform:translate(4px,-4px)}
+.featured-badge{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  background:rgba(126,217,87,0.1);border:0.5px solid rgba(126,217,87,0.25);
+  color:var(--accent);font-size:0.68rem;font-family:'DM Mono',monospace;
+  padding:0.3rem 0.8rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1.2rem;
+}
+.featured-badge::before{content:'●';font-size:0.45rem}
+.feat-stats{display:flex;gap:2.5rem;margin-bottom:1.5rem}
+.feat-stat-label{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:0.3rem}
+.feat-stat-val{font-size:0.95rem;font-weight:700}
+
+.team-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:0.5px solid var(--border)}
+.team-card{padding:2rem 1.5rem;border-right:0.5px solid var(--border);transition:background 0.3s}
+.team-card:last-child{border-right:none}
+.team-card:hover{background:var(--bg3)}
+.team-avatar{
+  width:50px;height:50px;background:rgba(126,217,87,0.08);
+  border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;
+  font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--accent);
+  font-weight:500;margin-bottom:1.2rem;letter-spacing:0.05em;
+  clip-path:polygon(8% 0%,100% 0%,92% 100%,0% 100%);
+}
+.team-name{font-weight:700;font-size:0.88rem;margin-bottom:0.3rem;line-height:1.2}
+.team-role{font-size:0.72rem;color:var(--muted)}
+
+.stack-section{background:var(--bg2)}
+.stack-items{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:0.5px solid var(--border);margin-top:3rem}
+.stack-item{padding:2rem;border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border)}
+.stack-item:nth-child(3n){border-right:none}
+.stack-item:nth-last-child(-n+3){border-bottom:none}
+.stack-icon{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--accent3);letter-spacing:0.1em;margin-bottom:0.8rem}
+.stack-name{font-size:1rem;font-weight:700;margin-bottom:0.4rem}
+.stack-desc{font-size:0.78rem;color:var(--muted);line-height:1.6}
+
+.contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start}
+.contact-form{display:flex;flex-direction:column;gap:1rem}
+.form-field{display:flex;flex-direction:column;gap:0.4rem}
+.form-label{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
+.form-input{
+  background:var(--bg2);border:0.5px solid var(--border2);color:var(--text);
+  padding:0.8rem 1rem;font-family:'Syne',sans-serif;font-size:0.9rem;
+  outline:none;transition:border-color 0.2s;width:100%;
+}
+.form-input:focus{border-color:var(--accent)}
+textarea.form-input{height:120px;resize:vertical}
+
+footer{
+  border-top:0.5px solid var(--border);padding:2rem 3rem;
+  display:flex;justify-content:space-between;align-items:center;background:var(--bg2);
+}
+.footer-logo{
+  display:flex;align-items:center;gap:0.6rem;
+  font-size:0.9rem;font-weight:800;color:var(--text);letter-spacing:0.1em;
+}
+.footer-logo-icon{
+  width:22px;height:22px;background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:800;color:var(--dark);
+  clip-path:polygon(10% 0%,100% 0%,90% 100%,0% 100%);
+}
+.footer-copy{font-size:0.72rem;color:var(--muted2);font-family:'DM Mono',monospace}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">C</div>
+    CORTEX
+  </div>
+  <ul class="nav-links">
+    <li><a href="#projets">Projets</a></li>
+    <li><a href="#equipe">Équipe</a></li>
+    <li><a href="#stack">Technologies</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta">Nous contacter</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-vignette"></div>
+  <div class="circuit-bg">C</div>
+  <div class="hero-label">Logiciels Qt / C++ · Tunis, Tunisie</div>
+  <h1 class="hero-title">
+    Des logiciels<br>
+    <span class="accent">intelligents,</span><br>
+    livrés.
+  </h1>
+  <p class="hero-subtitle">
+    CORTEX conçoit des applications desktop robustes et intelligentes avec Qt et C++, 
+    de la gestion industrielle à l'intégration Arduino et RFID.
+  </p>
+  <div class="hero-actions">
+    <button class="btn-primary">Voir nos projets</button>
+    <button class="btn-ghost">Notre équipe</button>
+  </div>
+  <div class="hero-scroll">Défiler</div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">Qt 6 / C++17</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Optimisation IA</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Intégration Arduino</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Gestion RFID</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Applications Desktop</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Base de données SQL</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Export PDF</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Qt 6 / C++17</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Optimisation IA</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Intégration Arduino</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Gestion RFID</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Applications Desktop</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Base de données SQL</span><span class="marquee-dot">◆</span>
+    <span class="marquee-item">Export PDF</span><span class="marquee-dot">◆</span>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Projets livrés</div></div>
+  <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Membres d'équipe</div></div>
+  <div class="stat-item"><div class="stat-num">Qt6</div><div class="stat-label">Framework principal</div></div>
+  <div class="stat-item"><div class="stat-num">C++17</div><div class="stat-label">Langage de base</div></div>
+</div>
+
+<section id="projets" style="padding:6rem 3rem;">
+  <div class="section-label">Nos réalisations</div>
+  <h2 class="section-title">Ce que nous <span class="italic">construisons</span></h2>
+
+  <div class="projects-grid">
+    <div class="project-card featured">
+      <div class="featured-badge">Projet phare · 2024</div>
+      <div class="project-title">SmartCarpentry</div>
+      <p class="project-desc">
+        Application desktop complète de gestion bout-en-bout pour la menuiserie industrielle.
+        Modules CRUD pour employés, matériaux, fabrication et pièces — enrichis d'un moteur 
+        d'optimisation IA pour la découpe (nesting), d'une intégration Arduino pour alertes et mesures, 
+        d'un système de pointage RFID, et de tableaux de bord avec export PDF.
+      </p>
+      <div class="feat-stats">
+        <div><div class="feat-stat-label">MODULES</div><div class="feat-stat-val">8+ CRUD</div></div>
+        <div><div class="feat-stat-label">IA</div><div class="feat-stat-val">Nesting optimizer</div></div>
+        <div><div class="feat-stat-label">HARDWARE</div><div class="feat-stat-val">Arduino + RFID</div></div>
+      </div>
+      <div class="project-tech">
+        <span class="tech-pill">Qt 6</span>
+        <span class="tech-pill">C++17</span>
+        <span class="tech-pill">Qt SQL / ODBC</span>
+        <span class="tech-pill">Qt Charts</span>
+        <span class="tech-pill">Qt SerialPort</span>
+        <span class="tech-pill">Qt PrintSupport</span>
+        <span class="tech-pill">OpenCV</span>
+        <span class="tech-pill">Arduino</span>
+      </div>
+      <div class="project-arrow">↗</div>
+    </div>
+
+    <!-- ANCIEN PROJET 1 -->
+    <div class="project-card">
+      <div class="project-tag">Projet 2022</div>
+      <div class="project-title">MediTrack</div>
+      <p class="project-desc">
+        Système de gestion de clinique médicale avec suivi des patients, dossiers médicaux, 
+        rendez-vous et facturation. Interface Qt complète avec génération de rapports PDF 
+        et notifications automatiques par email intégrées.
+      </p>
+      <div class="project-tech">
+        <span class="tech-pill">Qt 5</span>
+        <span class="tech-pill">C++14</span>
+        <span class="tech-pill">MySQL</span>
+        <span class="tech-pill">Qt Network</span>
+      </div>
+      <div class="project-arrow">↗</div>
+    </div>
+
+    <!-- ANCIEN PROJET 2 -->
+    <div class="project-card">
+      <div class="project-tag">Projet 2023</div>
+      <div class="project-title">EduSync</div>
+      <p class="project-desc">
+        Plateforme de gestion universitaire couvrant étudiants, enseignants, emplois du temps 
+        et notes. Tableaux de bord analytiques avec Qt Charts, exports Excel et système 
+        de notifications internes en temps réel.
+      </p>
+      <div class="project-tech">
+        <span class="tech-pill">Qt 5</span>
+        <span class="tech-pill">C++17</span>
+        <span class="tech-pill">PostgreSQL</span>
+        <span class="tech-pill">Qt Charts</span>
+        <span class="tech-pill">Qt Concurrent</span>
+      </div>
+      <div class="project-arrow">↗</div>
+    </div>
+  </div>
+</section>
+
+<section id="equipe" style="padding:6rem 3rem;background:var(--bg2);">
+  <div class="section-label">L'équipe</div>
+  <h2 class="section-title">Cinq développeurs, <span class="italic">un seul code</span></h2>
+  <p style="color:var(--muted);font-size:0.92rem;max-width:480px;line-height:1.7;margin-bottom:3rem;">
+    Une équipe de développeurs en génie logiciel, réunis autour de la passion 
+    pour le développement Qt et C++ haute performance.
+  </p>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar">MNM</div>
+      <div class="team-name">Mohamed Nour Mrad</div>
+      <div class="team-role">Directeur Général</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">RT</div>
+      <div class="team-name">Ranim Tamedda</div>
+      <div class="team-role">Directrice Technique</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">ABR</div>
+      <div class="team-name">Ali Ben Rhaiem</div>
+      <div class="team-role">Directeur Financier</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">ABA</div>
+      <div class="team-name">Anas Ben Amor</div>
+      <div class="team-role">Responsable Produit</div>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">OS</div>
+      <div class="team-name">Omar Saidani</div>
+      <div class="team-role">Project Manager</div>
+    </div>
+  </div>
+</section>
+
+<section id="stack" class="stack-section" style="padding:6rem 3rem;">
+  <div class="section-label">Technologies</div>
+  <h2 class="section-title">Notre <span class="italic">arsenal</span> technique</h2>
+  <div class="stack-items">
+    <div class="stack-item">
+      <div class="stack-icon">// FRAMEWORK</div>
+      <div class="stack-name">Qt 6 Widgets</div>
+      <div class="stack-desc">Framework de référence pour applications desktop cross-platform avec IHM riche, réactive et performante.</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-icon">// LANGUAGE</div>
+      <div class="stack-name">C++17</div>
+      <div class="stack-desc">Puissance maximale avec gestion mémoire précise, templates modernes et paradigmes OOP avancés.</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-icon">// DATABASE</div>
+      <div class="stack-name">Qt SQL / ODBC</div>
+      <div class="stack-desc">Accès unifié aux bases de données relationnelles via ODBC, avec abstraction Qt propre et sécurisée.</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-icon">// HARDWARE</div>
+      <div class="stack-name">Arduino + SerialPort</div>
+      <div class="stack-desc">Communication temps réel avec Arduino via Qt SerialPort pour capteurs, alertes et mesures physiques.</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-icon">// SECURITY</div>
+      <div class="stack-name">RFID Integration</div>
+      <div class="stack-desc">Gestion de présence et contrôle d'accès par badge RFID avec journalisation complète des événements.</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-icon">// AI / OPTIM</div>
+      <div class="stack-name">Nesting Engine</div>
+      <div class="stack-desc">Algorithme IA pour l'optimisation de découpe de panneaux, minimisant les chutes matières.</div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding:6rem 3rem;">
+  <div class="section-label">Contact</div>
+  <div class="contact-inner">
+    <div>
+      <h2 class="section-title">Travaillons <span class="italic">ensemble</span></h2>
+      <p style="color:var(--muted);font-size:0.92rem;line-height:1.7;margin-bottom:2rem;">
+        Un projet logiciel Qt/C++ ? Une idée à concrétiser ? 
+        Notre équipe est disponible pour échanger sur vos besoins.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:1.2rem;">
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);letter-spacing:0.1em;min-width:80px;">LIEU</div>
+          <div style="font-size:0.88rem;color:var(--muted);">Tunis, Tunisie</div>
+        </div>
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);letter-spacing:0.1em;min-width:80px;">NIVEAU</div>
+          <div style="font-size:0.88rem;color:var(--muted);">2ème année Génie Logiciel</div>
+        </div>
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--accent);letter-spacing:0.1em;min-width:80px;">STACK</div>
+          <div style="font-size:0.88rem;color:var(--muted);">Qt 6 · C++17 · Arduino · RFID</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form">
+      <div class="form-field">
+        <label class="form-label">Nom complet</label>
+        <input type="text" class="form-input" placeholder="Votre nom">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" placeholder="votre@email.com">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Message</label>
+        <textarea class="form-input" placeholder="Décrivez votre projet..."></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:0.5rem;">Envoyer le message</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-icon">C</div>
+    CORTEX
+  </div>
+  <div class="footer-copy">© 2025 — CORTEX · Tunis, Tunisie</div>
+  <div class="footer-copy">SmartCarpentry & team CORTEX</div>
+</footer>
+
+</body>
+</html>
